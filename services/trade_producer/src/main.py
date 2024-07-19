@@ -1,11 +1,14 @@
-from quixstreams import Application
-from typing import List, Dict
+from typing import Dict, List
+
 from kraken_api import KrakenWebsoceketTradeAPI
+from loguru import logger
+from quixstreams import Application
+
 
 def produce_trades(
-        kafka_broker_address: str,
-        kafka_topic_name: str,
-)->  None: 
+    kafka_broker_address: str,
+    kafka_topic_name: str,
+) -> None:
     """Reads trades from the Kraken websocket API and produces them to a Kafka topic
 
     Args:
@@ -18,36 +21,30 @@ def produce_trades(
     app = Application(broker_address=kafka_broker_address)
     # The topic where we will save the trades
     topic = app.topic(name=kafka_topic_name, value_serializer='json')
-    #Create an instance of the KrakenWebsocketTradeAPI
-    kraken_api = KrakenWebsoceketTradeAPI(product_id="BTC/USD")
-    
+    # Create an instance of the KrakenWebsocketTradeAPI
+    kraken_api = KrakenWebsoceketTradeAPI(product_id='BTC/USD')
+    logger.info('Starting to produce trades to redpanda...')
     # Create a Producer instance
-    with app.get_producer() as producer: #application that writes to the Kafka topics are called producers
+    with app.get_producer() as producer:  # application that writes to the Kafka topics are called producers
         while True:
-            #Get trades from the Kraken API
+            # Get trades from the Kraken API
             trades: List[Dict] = kraken_api.get_trades()
             for trade in trades:
-                # Serialize an event using the defined Topic 
-                message = topic.serialize(key=trade["product_id"], value=trade)
+                # Serialize an event using the defined Topic
+                message = topic.serialize(key=trade['product_id'], value=trade)
                 # Produce a message into the Kafka topic
-                producer.produce(
-                    topic=topic.name, 
-                    value=message.value,
-                    key=message.key
-                )
-                print("message sent!")
+                producer.produce(topic=topic.name, value=message.value, key=message.key)
+                logger.info(f'Trade sent: {trade}')
                 import time
+
                 # Wait for 1 second
                 time.sleep(1)
-            
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     # Define the Kafka broker address
-    kafka_broker_address = "localhost:19092"
+    kafka_broker_address = 'redpanda-0:9092'
     # Define the Kafka topic name
-    kafka_topic_name = "trades"
+    kafka_topic_name = 'trades'
     # Produce trades to the Kafka topic
     produce_trades(kafka_broker_address, kafka_topic_name)
-
-
-     

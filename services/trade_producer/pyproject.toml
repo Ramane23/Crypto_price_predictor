@@ -6,11 +6,27 @@ authors = ["Ramane23 <contactsouley@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "^3.10"
 quixstreams = "^2.8.0"
 websocket-client = "^1.8.0"
+make = "^0.1.6.post2"
+loguru = "^0.7.2"
 
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.5.3"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.format]
+quote-style = "single"
+indent-style = "space"
+docstring-code-format = true
+
+[tool.ruff.lint]
+extend-select = ["I"]
