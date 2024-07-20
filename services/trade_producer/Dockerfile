@@ -11,6 +11,10 @@ FROM python:3.10-slim-buster
 # ENV is used to set environment variables in the container.
 # PYTHONUNBUFFERED: This environment variable is set to 1 to ensure that the output from Python is not buffered, allowing it to be streamed to the console.
 ENV PYTHONUNBUFFERED=1
+# POETRY_VIRTUALENVS_CREATE: This environment variable is set to true to create a virtual environment for the project.
+ENV POETRY_VIRTUALENVS_CREATE=true
+# POETRY_VIRTUALENVS_IN_PROJECT: This environment variable is set to false to prevent the virtual environment from being created in the project directory.
+ENV POETRY_VIRTUALENVS_IN_PROJECT=false
 
 #Installing Poetry
 # RUN is used to execute commands during the build process.

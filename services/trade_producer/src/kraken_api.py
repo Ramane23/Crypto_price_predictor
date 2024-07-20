@@ -52,7 +52,7 @@ class KrakenWebsoceketTradeAPI:
         # parse the message as a dictionary
         message = json.loads(message)
 
-        logger.info('received response', message)
+        # print("received response", message)
 
         # Extracting the prices, quantities and timestamps of the trades
         trades = []

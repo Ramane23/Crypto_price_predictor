@@ -1,5 +1,6 @@
 from typing import Dict, List
 
+from config import config
 from kraken_api import KrakenWebsoceketTradeAPI
 from loguru import logger
 from quixstreams import Application
@@ -8,6 +9,7 @@ from quixstreams import Application
 def produce_trades(
     kafka_broker_address: str,
     kafka_topic_name: str,
+    product_id: str = config.product_id,
 ) -> None:
     """Reads trades from the Kraken websocket API and produces them to a Kafka topic
 
@@ -22,7 +24,7 @@ def produce_trades(
     # The topic where we will save the trades
     topic = app.topic(name=kafka_topic_name, value_serializer='json')
     # Create an instance of the KrakenWebsocketTradeAPI
-    kraken_api = KrakenWebsoceketTradeAPI(product_id='BTC/USD')
+    kraken_api = KrakenWebsoceketTradeAPI(product_id=product_id)
     logger.info('Starting to produce trades to redpanda...')
     # Create a Producer instance
     with app.get_producer() as producer:  # application that writes to the Kafka topics are called producers
@@ -42,9 +44,8 @@ def produce_trades(
 
 
 if __name__ == '__main__':
-    # Define the Kafka broker address
-    kafka_broker_address = 'redpanda-0:9092'
-    # Define the Kafka topic name
-    kafka_topic_name = 'trades'
-    # Produce trades to the Kafka topic
-    produce_trades(kafka_broker_address, kafka_topic_name)
+       produce_trades(
+            kafka_broker_address=config.kafka_broker_address,
+            kafka_topic_name=config.kafka_topic_name,
+            product_id=config.product_id,
+       )
