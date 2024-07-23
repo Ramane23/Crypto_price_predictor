@@ -107,7 +107,7 @@ def trade_to_ohlc(
     # For you Olanrewaju!
     # sdf['volume'] = sdf['value']['volume']
 
-    # adding a timestamp key
+    # adding a timestamp key and transforming it to timestamp
     sdf['timestamp'] = sdf['end']
 
     # let's keep only the keys we want in our final message

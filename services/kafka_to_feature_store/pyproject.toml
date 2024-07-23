@@ -6,11 +6,10 @@ authors = ["Ramane23 <contactsouley@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = ">=3.10,<3.13"
 quixstreams = "^2.8.0"
-fire = "^0.6.0"
-python-dotenv = "^1.0.1"
 loguru = "^0.7.2"
+hopsworks = "^3.7.0"
 
 
 [build-system]
