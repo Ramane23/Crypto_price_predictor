@@ -8,9 +8,8 @@ run: build
 		--env KAFKA_BROKER_ADDRESS=redpanda-0:9092 \
 		--env KAFKA_TOPIC=ohlc \
 		--env KAFKA_CONSUMER_GROUP=kafka_to_feature_store \
-		--env FEATURE_GROUP_NAME=ohlc_feature_group \
+		--env FEATURE_GROUP_NAME=ohlc_feature_group_1 \
 		--env FEATURE_GROUP_VERSION=1 \
-		--env LIVE_OR_HISTORICAL=live \
 		kafka-to-feature-store
 lint:
 	poetry run ruff check --fix

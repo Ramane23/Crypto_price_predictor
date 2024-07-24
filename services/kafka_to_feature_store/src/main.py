@@ -36,19 +36,19 @@ def kafka_to_feature_store(
         while True:
             msg = consumer.poll(1) #how much time to wait for a message before skipping to the next iteration
             if msg is None:
+                logger.info("No new messages comes in!")
                 continue
             elif msg.error():
                 logger.info('Kafka error:', msg.error())
                 continue
             else:
                 # step 1 -> parse the data from the topic into a dictionary
-                ohlc = json.loads(msg.value().decode('utf-8')) #data we need to store in the feature store
+                try:
+                    ohlc = json.loads(msg.value().decode('utf-8'))
+                except json.JSONDecodeError as e:
+                    logger.error(f"Failed to decode JSON: {e}")
+                    continue
                 
-                # Parse the ISO 8601 string to a datetime object
-                timestamp_dt = datetime.fromisoformat(ohlc['timestamp'].rstrip('Z'))
-                # Convert the datetime object to a Unix epoch timestamp (integer)
-                ohlc['timestamp'] = int(timestamp_dt.timestamp())
-
                 # step 2 -> store the data in the feature store
                 push_data_to_feature_store(
                     data=ohlc, 
