@@ -12,6 +12,7 @@ websocket-client = "^1.8.0"
 make = "^0.1.6.post2"
 loguru = "^0.7.2"
 pydantic-settings = "^2.3.4"
+requests = "^2.32.3"
 
 
 [tool.poetry.group.dev.dependencies]

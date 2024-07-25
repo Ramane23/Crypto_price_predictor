@@ -1,5 +1,5 @@
 import json
-
+from typing import List
 from loguru import logger
 from websocket import create_connection
 
@@ -13,23 +13,23 @@ class KrakenWebsoceketTradeAPI:
 
     def __init__(
         self,
-        product_id: str,
+        product_ids: str,
     ):
-        self.product_id = product_id
+        self.product_id = product_ids
         # Create a websocket connection
         self._ws = create_connection(self.URL)
         logger.info('connection established')
 
         # Subscribe to the trade channel
-        self._subscribe(product_id)
+        self._subscribe(product_ids)
 
-    def _subscribe(self, product_id: str):
+    def _subscribe(self, product_ids: List[str]):
         """Subscribe to the trade channel of a product"""
-        logger.info(f'subscribing to trade channel for {product_id}')
+        logger.info(f'subscribing to trade channel for {product_ids}')
         # Subscribe to the trade channel
         msg = {
             'method': 'subscribe',
-            'params': {'channel': 'trade', 'symbol': [product_id], 'snapshot': False},
+            'params': {'channel': 'trade', 'symbol': [product_ids], 'snapshot': False},
         }
         # Send the message
         self._ws.send(json.dumps(msg))
@@ -67,3 +67,11 @@ class KrakenWebsoceketTradeAPI:
                 }
             )
         return trades
+    
+    def is_done(self) -> bool:
+        """Checks if we are done fetching live data
+
+        Returns:
+            bool: always returns False as we are never done fetching live data
+        """
+        return False

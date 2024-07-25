@@ -7,7 +7,7 @@
 # buster: This refers to the Debian Buster distribution, providing a stable and secure Linux base.
 FROM python:3.10-slim-buster 
 
-# install gcc and python3-dev to compile Python packages
+# install gcc and python3-dev to compile Python packages as we will be running dependicies build on C++ (hopsworks depend on twofish)
 RUN apt-get update && apt-get install -y \
     gcc \
     python3-dev
