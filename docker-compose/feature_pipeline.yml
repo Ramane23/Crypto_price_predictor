@@ -1,4 +1,4 @@
-version: "3.7" # Specify the version of Docker Compose
+version: "4.27.0" # Specify the version of Docker to use
 
 name: feature_pipeline # Name of the Docker Compose project
 
@@ -6,6 +6,7 @@ networks:
   redpanda_network:
     name: redpanda_network # Name of the Redpanda network
     driver: bridge # Specify the network driver
+    external: true # Allow the network to be used by other Docker Compose files
 
 services:
   trade_producer:
@@ -16,7 +17,8 @@ services:
       - redpanda_network # Connect this service to the Redpanda network
     environment:
       KAFKA_BROKER_ADDRESS: redpanda-0:9092 # Set the environment variable for the Kafka broker address
-    
+    env_file:
+      - ../services/trade_producer/.env
     restart: always # Always restart the container if it stops
 
   trade_to_ohlc:
@@ -32,16 +34,16 @@ services:
       #- ../services/trade_to_ohlc/setup_live_config.sh # Load environment variables from this file
     restart: always # Always restart the container if it stops
 
-  kafka_to_feature_store:
-    container_name: kafka_to_feature_store # Specify a container name for this service
-    build:
-      context: ../services/kafka_to_feature_store # Specify the build context for the kafka_to_feature_store service
-    networks:
-      - redpanda_network # Connect this service to the Redpanda network
-    environment:
-      KAFKA_BROKER_ADDRESS: redpanda-0:9092 # Set the environment variable for the Kafka broker address
-    env_file:
-      - ../services/kafka_to_feature_store/.env
-      #- ../services/kafka_to_feature_store/setup_live_config.sh # Load environment variables from this file
-      #- ../services/kafka_to_feature_store/setup_credentials.sh # Load additional environment variables from this file
-    restart: always # Always restart the container if it stops
+  # kafka_to_feature_store:
+  #     container_name: kafka_to_feature_store # Specify a container name for this service
+  #     build:
+  #       context: ../services/kafka_to_feature_store # Specify the build context for the kafka_to_feature_store service
+  #     networks:
+  #       - redpanda_network # Connect this service to the Redpanda network
+  #     environment:
+  #       KAFKA_BROKER_ADDRESS: redpanda-0:9092 # Set the environment variable for the Kafka broker address
+  #     env_file:
+  #       - ../services/kafka_to_feature_store/.env
+  #       #- ../services/kafka_to_feature_store/setup_live_config.sh # Load environment variables from this file
+  #       #- ../services/kafka_to_feature_store/setup_credentials.sh # Load additional environment variables from this file
+  #     restart: always # Always restart the container if it stops

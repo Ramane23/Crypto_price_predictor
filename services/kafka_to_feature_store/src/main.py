@@ -9,7 +9,8 @@ def kafka_to_feature_store(
     kafka_topic: str,
     kafka_broker_address: str,
     feature_group_name: str,
-    feature_group_version: int
+    feature_group_version: int,
+    buffer_size: int = 1 #contains the trades that we want to write to the feature store at once
 )-> None:
     """
     Stream data from the ohlc Kafka topic to the hopsworks feature store in the specified feature group
@@ -18,6 +19,7 @@ def kafka_to_feature_store(
         kafka_broker_address (str): the address of the Kafka broker
         feature_group_name (str): the name of the feature group
         feature_group_version (int): the version of the feature group
+        buffer_size (int): the number of messages to buffer before writing to the feature store
     Returns:
         None
     """
@@ -28,7 +30,10 @@ def kafka_to_feature_store(
         auto_offset_reset="earliest"
     )
     logger.info("Application created")
-
+    #initialize the buffer
+    buffer = []
+    #TODO: handle the case where the buffer is not full and there is nor more expected data to come in 
+    # as with the current implementation we may miss the last few messages if the buffer is not full (up to buffer_size-1 messages)
     # Create a consumer and start a polling loop
     with app.get_consumer() as consumer: #creating a consumer with the predifined quixstreams get_consumer() method
         consumer.subscribe(topics=[kafka_topic]) #subscribing to the topic
@@ -48,14 +53,29 @@ def kafka_to_feature_store(
                 except json.JSONDecodeError as e:
                     logger.error(f"Failed to decode JSON: {e}")
                     continue
-                
+                #append the data to the buffer
+                buffer.append(ohlc)
+                logger.info(f"current buffer length: {len(buffer)}")
+                #breakpoint()
+                #check if the buffer is full
+                if len(buffer) >= buffer_size:
+                    # step 2 -> store the data in the feature store
+                    push_data_to_feature_store(
+                        data=buffer, 
+                        feature_group_name=feature_group_name, 
+                        feature_group_version=feature_group_version,
+                        online_or_offline = "offline"
+                    )
+                    #clear the buffer
+                    buffer = []
+
                 # step 2 -> store the data in the feature store
-                push_data_to_feature_store(
-                    data=ohlc, 
-                    feature_group_name=feature_group_name, 
-                    feature_group_version=feature_group_version,
-                    online_or_offline = "online"
-                )
+                # push_data_to_feature_store(
+                #     data=ohlc, 
+                #     feature_group_name=feature_group_name, 
+                #     feature_group_version=feature_group_version,
+                #     online_or_offline = "online"
+                # )
 
             value = msg.value()
             # Do some work with the value here ...
@@ -68,10 +88,20 @@ def kafka_to_feature_store(
             consumer.store_offsets(message=msg)# telling kafka that this consumer group has red up until this message
 
 if __name__ == "__main__":
-    kafka_to_feature_store(
-        kafka_topic = config.kafka_topic,
-        kafka_broker_address = config.kafka_broker_address,
-        feature_group_name = config.feature_group_name,
-        feature_group_version = config.feature_group_version
-
-    )
+    try: 
+        kafka_to_feature_store(
+            kafka_topic = config.kafka_topic,
+            kafka_broker_address = config.kafka_broker_address,
+            feature_group_name = config.feature_group_name,
+            feature_group_version = config.feature_group_version,
+            buffer_size = config.buffer_size
+        )
+    except KeyboardInterrupt:
+        logger.info("Stopping the application...")
+    # kafka_to_feature_store(
+    #     kafka_topic = config.kafka_topic,
+    #     kafka_broker_address = config.kafka_broker_address,
+    #     feature_group_name = config.feature_group_name,
+    #     feature_group_version = config.feature_group_version,
+    #     buffer_size = config.buffer_size
+    # )

@@ -13,23 +13,25 @@ class KrakenWebsoceketTradeAPI:
 
     def __init__(
         self,
-        product_ids: str,
+        #product_ids: List[str]
+        product_id: str
     ):
-        self.product_id = product_ids
+        self.product_id = product_id
         # Create a websocket connection
         self._ws = create_connection(self.URL)
         logger.info('connection established')
 
         # Subscribe to the trade channel
-        self._subscribe(product_ids)
+        self._subscribe(product_id)
+        self.is_done : bool = False
 
-    def _subscribe(self, product_ids: List[str]):
+    def _subscribe(self, product_id):
         """Subscribe to the trade channel of a product"""
-        logger.info(f'subscribing to trade channel for {product_ids}')
+        logger.info(f'subscribing to trade channel for {product_id}')
         # Subscribe to the trade channel
         msg = {
             'method': 'subscribe',
-            'params': {'channel': 'trade', 'symbol': [product_ids], 'snapshot': False},
+            'params': {'channel': 'trade', 'symbol': product_id, 'snapshot': False},
         }
         # Send the message
         self._ws.send(json.dumps(msg))
@@ -51,6 +53,7 @@ class KrakenWebsoceketTradeAPI:
 
         # parse the message as a dictionary
         message = json.loads(message)
+        #breakpoint()
 
         # print("received response", message)
 
@@ -60,7 +63,7 @@ class KrakenWebsoceketTradeAPI:
             # append the trade to the list of trades
             trades.append(
                 {
-                    'product_id': self.product_id,
+                    'product_id': trade['symbol'],
                     'price': trade['price'],
                     'volume': trade['qty'],
                     'timestamp': trade['timestamp'],
@@ -68,10 +71,10 @@ class KrakenWebsoceketTradeAPI:
             )
         return trades
     
-    def is_done(self) -> bool:
+    def done(self) -> bool:
         """Checks if we are done fetching live data
 
         Returns:
             bool: always returns False as we are never done fetching live data
         """
-        return False
+        return self.is_done

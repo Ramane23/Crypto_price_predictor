@@ -46,18 +46,15 @@ def push_data_to_feature_store(
         online_enabled=True,
     )
 
-    # breakpoint()
-
     # transform the data (dict) into a pandas dataframe
-    data = pd.DataFrame([data])
-
+    data = pd.DataFrame(data)    
     # Write the data to the feature group
 
     ohlc_feature_group.insert(
         data,
         write_options={
-            'start_offline_materialization': True
-            if online_or_offline == 'offline'
+            'start_offline_materialization': True # we are telling the feature store to start copying the data to the offline database 
+            if online_or_offline == 'offline' #if the online_offline argument is set to offline
             else False
         },
     )

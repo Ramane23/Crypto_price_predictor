@@ -1,4 +1,4 @@
-version: "3.7"  # Specify the version of the Docker Compose file format to use.
+version: "4.27.0"  # Specify the version of docker to use.
 
 name: redpanda-quickstart-one-broker  # Name of the Docker Compose application.
 
@@ -6,6 +6,7 @@ networks:
   redpanda_network: 
     name: redpanda_network # Define a custom network named 'redpanda_network'.
     driver: bridge  # Use the 'bridge' network driver, which creates an isolated network.
+    external: true  # Allow the network to be used by other Docker Compose files.
 
 volumes:
   redpanda-0: null  # Define a volume named 'redpanda-0'. The 'null' value indicates it's created but not initialized with data.
