@@ -2,7 +2,7 @@ from typing import Dict, List
 
 from config import config
 from kraken_api.websocket import KrakenWebsoceketTradeAPI
-from kraken_api.rest import KrakenRestAPI
+from kraken_api.rest import KrakenRestAPIMultipleProducts
 from loguru import logger
 from quixstreams import Application
 import time
@@ -11,8 +11,8 @@ import time
 def produce_trades(
     kafka_broker_address: str,
     kafka_topic_name: str,
-    #product_ids: List[str], 
-    product_id: str,
+    product_ids: List[str], 
+    #product_id: str,
     live_or_historical: str, 
     last_n_days: int 
 ) -> None:
@@ -33,10 +33,10 @@ def produce_trades(
     topic = app.topic(name=kafka_topic_name, value_serializer='json')
     # Create an instance of the KrakenWebsocketTradeAPI
     if live_or_historical == 'live':
-        kraken_api = KrakenWebsoceketTradeAPI(product_id=product_id)
+        kraken_api = KrakenWebsoceketTradeAPI(product_id=product_ids)
     else:
-        kraken_api = KrakenRestAPI(
-            product_id=product_id, 
+        kraken_api = KrakenRestAPIMultipleProducts(
+            product_ids=product_ids, 
             #from_ms=from_ms, 
             #to_ms=to_ms
             last_n_days=last_n_days
@@ -67,7 +67,7 @@ if __name__ == '__main__':
     produce_trades(
         kafka_broker_address=config.kafka_broker_address,
         kafka_topic_name=config.kafka_topic_name,
-        product_id=config.product_id,
+        product_ids=config.product_ids,
         #extra argument needed for fetching trades from the Kraken REST API
         live_or_historical=config.live_or_historical,
         last_n_days=config.last_n_days

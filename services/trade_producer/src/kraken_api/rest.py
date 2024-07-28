@@ -7,6 +7,53 @@ from datetime import datetime, timezone
 import requests
 from loguru import logger
 
+class KrakenRestAPIMultipleProducts:
+    def __init__(
+        self,
+        product_ids: List[str],
+        last_n_days: int,
+        #n_threads: Optional[int] = 1,
+        #cache_dir: Optional[str] = None,
+    ) -> None:
+        self.product_ids = product_ids
+        #create an instance of the KrakenRestAPI for each product_id we want to fetch data for
+        self.kraken_apis = [
+            KrakenRestAPI(
+                product_id=product_id, last_n_days=last_n_days
+            )
+            for product_id in product_ids
+        ]
+
+        #self.n_threads = n_threads
+
+    def get_trades(self) -> List[Dict]:
+        """Fetches trade data from the Kraken REST API for all product ids
+        Args:
+            None
+        Returns:
+            List[Dict]: A list of trades for all product ids
+        """
+        trades : List[Dict] = []
+        for kraken_api in self.kraken_apis:
+            if kraken_api.done():
+                continue
+            else: 
+                trades = kraken_api.get_trades()
+        return trades
+    
+    def done(self) -> bool:
+        """Checks if we are done fetching historical data for all product ids
+        Args:
+            None
+        Returns:
+            bool: True if we are done fetching historical data for all product ids, False otherwise"""
+        for kraken_api in self.kraken_apis:
+            #as long as one of the kraken_apis is not done fetching historical data
+            if not kraken_api.done():
+                return False
+            #if all of the kraken_apis are done fetching historical data
+        return True
+
 class KrakenRestAPI : 
     """A class used to interact with the Kraken REST API"""
 

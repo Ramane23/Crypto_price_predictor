@@ -10,8 +10,8 @@ load_dotenv()
 class Config(BaseSettings):
     kafka_broker_address: Optional[str] = os.environ.get('KAFKA_BROKER_ADDRESS')
     kafka_topic_name: str = 'trades'
-    #product_ids: List[str]= ['ETH/USD', "ETH/EUR", "BTC/USD", "BTC/EUR"]
-    product_id: str = 'ETH/USD'
+    product_ids: List[str]= ['ETH/EUR', "ETH/USD", "BTC/USD", "BTC/EUR"]
+    #product_id: str = 'ETH/USD'
     live_or_historical: str = os.environ.get('LIVE_OR_HISTORICAL')
     last_n_days: int = 7
     # Validate the live_or_historical argument using a pydantic field validator
