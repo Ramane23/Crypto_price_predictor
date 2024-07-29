@@ -13,7 +13,7 @@ class Config(BaseSettings):
     product_ids: List[str]= ['ETH/EUR', "ETH/USD", "BTC/USD", "BTC/EUR"]
     #product_id: str = 'ETH/USD'
     live_or_historical: str = os.environ.get('LIVE_OR_HISTORICAL')
-    last_n_days: int = 7
+    last_n_days: int = os.environ.get('LAST_N_DAYS')
     # Validate the live_or_historical argument using a pydantic field validator
     @field_validator('live_or_historical')
     @classmethod

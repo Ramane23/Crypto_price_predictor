@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 import requests
 from loguru import logger
 
+#creating a class to fetch data from the Kraken REST API for multiple products, using the initia KrakenRestAPI class
 class KrakenRestAPIMultipleProducts:
     def __init__(
         self,
@@ -34,11 +35,12 @@ class KrakenRestAPIMultipleProducts:
             List[Dict]: A list of trades for all product ids
         """
         trades : List[Dict] = []
+        #fetch trades for each product id as long as we are not done fetching h
         for kraken_api in self.kraken_apis:
             if kraken_api.done():
                 continue
             else: 
-                trades = kraken_api.get_trades()
+                trades = kraken_api.get_trades()# use the get_trades method of the KrakenRestAPI class to fetch trades
         return trades
     
     def done(self) -> bool:
@@ -123,6 +125,23 @@ class KrakenRestAPI :
         #parse string into dicrionary
         data = json.loads(response.text)
         #breakpoint()
+         # TODO: Error handling
+        # It can happen that we get an error response from KrakenRESTAP like the following:
+        # data = {'error': ['EGeneral:Too many requests']}
+        # To solve this have several options
+        #
+        # Option 1. Check if the `error` key is present in the `data` and has
+        # a non-empty list value. If so, we could raise an exception, or even better, implment
+        # a retry mechanism, using a library like `retry` https://github.com/invl/retry
+        # Option 2. Simply slow down the rate at which we are making requests to the Kraken API,
+        # and cross your fingers.
+        # Option 3. Implement both Option 1 and Option 2, so you don't need to cross your fingers.
+        # Here is an example of how you could implement Option 2
+        if ('error' in data) and ('EGeneral:Too many requests' in data['error']):
+                # slow down the rate at which we are making requests to the Kraken API
+                logger.info('Too many requests. Sleeping for 30 seconds')
+                sleep(30)
+
         #check if the error section of the response is empty
         #if data['error'] is not []:
             #raise an exception if the error section is not empty
@@ -161,6 +180,8 @@ class KrakenRestAPI :
         logger.debug(f'fetched {len(trades)} trades')
         #when was the last trade fetched
         logger.debug(f'last trade time: {last_ts_in_ms}')
+        #slowing down the rate at which we are making requests to the Kraken API
+        sleep(1)
         return trades
 
     def done(self) -> bool:

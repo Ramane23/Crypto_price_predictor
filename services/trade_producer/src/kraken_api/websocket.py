@@ -45,7 +45,7 @@ class KrakenWebsoceketTradeAPI:
         """Get trades from the Kraken API"""
         # Get the response from the websocket API
         message = self._ws.recv()
-
+        #breakpoint()
         # filter out the heartbeat messages
         if 'heartbeat' in message:
             # return an empty list when a heartbeat message is received

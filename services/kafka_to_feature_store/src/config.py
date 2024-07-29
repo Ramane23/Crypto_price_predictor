@@ -14,6 +14,7 @@ class Config(BaseSettings):
     feature_group_version: int = 1
     hopsworks_project_name: str = os.environ.get("HOPSWORKS_PROJECT_NAME")
     hopsworks_api_key: str = os.environ.get("HOPSWORKS_API_KEY")
+    live_or_historical: str = "live" # by default we are in live mode
     buffer_size: int = os.environ.get("BUFFER_SIZE")
 
 config = Config()

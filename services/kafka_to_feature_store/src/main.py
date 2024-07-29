@@ -1,16 +1,26 @@
+from typing import Optional
 from quixstreams import Application
 from config import config
 import json
 from loguru import logger
-from datetime import datetime
+from datetime import datetime, timezone
 from hopsworks_api import push_data_to_feature_store
+
+def get_current_utc_ts() -> int:
+    """
+    Get the current UTC timestamp in seconds
+    Returns:
+        int: the current UTC timestamp in seconds
+    """
+    return int(datetime.now(timezone.utc).timestamp())
 
 def kafka_to_feature_store(
     kafka_topic: str,
     kafka_broker_address: str,
     feature_group_name: str,
     feature_group_version: int,
-    buffer_size: int = 1 #contains the trades that we want to write to the feature store at once
+    live_or_historical: Optional[str] = "live", #live or historical mode
+    buffer_size: Optional[int] = 1 #contains the trades that we want to write to the feature store at once
 )-> None:
     """
     Stream data from the ohlc Kafka topic to the hopsworks feature store in the specified feature group
@@ -19,6 +29,9 @@ def kafka_to_feature_store(
         kafka_broker_address (str): the address of the Kafka broker
         feature_group_name (str): the name of the feature group
         feature_group_version (int): the version of the feature group
+        live_or_historical (str): whether to write the data to the feature store in live or historical mode
+            live: the data is written to the online feature store
+            historical: the data is written to the offline feature store
         buffer_size (int): the number of messages to buffer before writing to the feature store
     Returns:
         None
@@ -30,6 +43,8 @@ def kafka_to_feature_store(
         auto_offset_reset="earliest"
     )
     logger.info("Application created")
+    #get current UTC in seconds
+    last_save_to_feature_store_ts = get_current_utc_ts()
     #initialize the buffer
     buffer = []
     #TODO: handle the case where the buffer is not full and there is nor more expected data to come in 
@@ -41,8 +56,27 @@ def kafka_to_feature_store(
         while True:
             msg = consumer.poll(1) #how much time to wait for a message before skipping to the next iteration
             if msg is None:
-                logger.info("No new messages comes in!")
-                continue
+                logger.debug(f"No new messages available in the input topic {kafka_topic}")
+                # No new messages available in the input topic
+                #instead of skipping we will check when was the last time we received a message
+                #and if it was more than N minutes ago we will push the data to the feature store regardless of the buffer size
+                n_sec = 10 
+                # check how many seconds has passed since the last message was received and compare it to the n_sec
+                if (get_current_utc_ts() - last_save_to_feature_store_ts)>= n_sec:
+                    logger.debug("Excedeed the timer limit, pushing the data to the feature store")
+                    #push the available data to the feature store
+                    push_data_to_feature_store(
+                        data=buffer, 
+                        feature_group_name=feature_group_name, 
+                        feature_group_version=feature_group_version,
+                        online_or_offline = "online"  if live_or_historical == "live" else "offline"
+                    )
+                    #clear the buffer
+                    buffer = []
+                else:
+                    #if the last message was received less than n_sec seconds ago we will skip to the next iteration
+                    logger.debug("Timer limit not excedeed, continuing the polling from the input Kafka topic")
+                    continue
             elif msg.error():
                 logger.info('Kafka error:', msg.error())
                 continue
@@ -64,11 +98,12 @@ def kafka_to_feature_store(
                         data=buffer, 
                         feature_group_name=feature_group_name, 
                         feature_group_version=feature_group_version,
-                        online_or_offline = "offline"
+                        online_or_offline = "online"  if live_or_historical == "live" else "offline"
                     )
                     #clear the buffer
                     buffer = []
-
+                # update the last_save_to_feature_store_ts
+                last_save_to_feature_store_ts = get_current_utc_ts()
                 # step 2 -> store the data in the feature store
                 # push_data_to_feature_store(
                 #     data=ohlc, 
@@ -94,6 +129,7 @@ if __name__ == "__main__":
             kafka_broker_address = config.kafka_broker_address,
             feature_group_name = config.feature_group_name,
             feature_group_version = config.feature_group_version,
+            live_or_historical = config.live_or_historical,
             buffer_size = config.buffer_size
         )
     except KeyboardInterrupt:
