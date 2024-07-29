@@ -9,6 +9,7 @@ class Config(BaseSettings):
     kafka_broker_address: Optional[str] = os.environ.get('KAFKA_BROKER_ADDRESS')
     kafka_input_topic_name: str = 'trades'
     kafka_output_topic_name: str = 'ohlc'
+    kafka_consumer_group: str = 'trade_to_ohlc'
     ohlc_window_secs: int = os.environ.get('OHLC_WINDOW_SECS')
     
 

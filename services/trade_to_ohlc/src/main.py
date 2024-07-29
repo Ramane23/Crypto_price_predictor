@@ -5,6 +5,7 @@ from datetime import timedelta
 def trade_to_ohlc(
     kafka_input_topic: str,
     kafka_output_topic: str,
+    kafka_consumer_group: str,
     kafka_broker_address: str,
     ohlc_window_secs: int,
 ) -> None:
@@ -21,7 +22,7 @@ def trade_to_ohlc(
     from quixstreams import Application
     app = Application(
         broker_address=kafka_broker_address,
-        consumer_group="trade_to_ohlc",#when we are reading from a topic, we need to specify the consumer group
+        consumer_group=kafka_consumer_group,#when we are reading from a topic, we need to specify the consumer group
         auto_offset_reset="earliest",#read from the beginning of the topic, meaning all the messages
         #auto_create_reset= "latest" #forget passed messages
     )
@@ -128,6 +129,7 @@ if __name__ == "__main__":
     #read configuration parameters from config file
     kafka_input_topic = config.kafka_input_topic_name
     kafka_output_topic = config.kafka_output_topic_name
+    kafka_consumer_group = config.kafka_consumer_group
     kafka_broker_address = config.kafka_broker_address
     ohlc_window_secs = config.ohlc_window_secs
 

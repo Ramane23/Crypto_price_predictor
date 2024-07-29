@@ -54,9 +54,19 @@ def produce_trades(
             trades: List[Dict] = kraken_api.get_trades()
             for trade in trades:
                 # Serialize an event using the defined Topic
-                message = topic.serialize(key=trade['product_id'], value=trade)
+                message = topic.serialize(
+                    key=trade['product_id'], 
+                    value=trade,
+                    timestamp_ms=trade["time"] #considering the timestamp of the trade as the timestamp of the messaage in the Kafka topic
+                )
+                breakpoint()
                 # Produce a message into the Kafka topic
-                producer.produce(topic=topic.name, value=message.value, key=message.key)
+                producer.produce(
+                    topic=topic.name, 
+                    value=message.value, 
+                    key=message.key,
+                    timestamp=message.timestamp #considering the timestamp of the trade as the timestamp of the messaage in the Kafka topic
+                )
                 logger.info(f'Trade sent: {trade}')
         
                 # Wait for 1 second
