@@ -1,22 +1,23 @@
+#import os
 from typing import List, Optional
-from pydantic_settings import BaseSettings
-from pydantic import field_validator
-import os
+
 from dotenv import load_dotenv
+from pydantic import field_validator
+from pydantic_settings import BaseSettings
 
 # This will load the environment variables from the .env file.
-load_dotenv()
+#load_dotenv()
 
 class Config(BaseSettings):
-    kafka_broker_address: Optional[str] = os.environ.get('KAFKA_BROKER_ADDRESS')
-    kafka_topic_name: str = 'trades'
-    product_ids: List[str]= ['ETH/EUR', "ETH/USD", "BTC/USD", "BTC/EUR"]
+    kafka_broker_address: Optional[str] = None #because during deployment on quix cloud later, we won't need to specify the kafka broker address as it will automatically create a client for us
+    kafka_topic_name: str 
+    product_ids: List[str]
     #product_id: str = 'ETH/USD'
-    live_or_historical: str = os.environ.get('LIVE_OR_HISTORICAL')
-    last_n_days: int = os.environ.get('LAST_N_DAYS')
+    live_or_historical: str 
+    last_n_days: Optional[int] = 1 #Optional because it is not required for live data
     # Validate the live_or_historical argument using a pydantic field validator
     @field_validator('live_or_historical')
-    @classmethod
+    @classmethod # This is a class method, meaning it is called on the class itself, not on an instance of the class
     def validate_live_or_historical(cls, value):
         assert value in {
             'live',

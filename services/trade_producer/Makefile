@@ -1,9 +1,13 @@
 run-dev:
-	poetry run python src/main.py
+	@echo "Running with live.env"
+	KAFKA_BROKER_ADDRESS='localhost:19092' \
+	source ./live.env && poetry run python src/main.py
+	
 run-dev-historical:
-	LIVE_OR_HISTORICAL=historical \
-	LAST_N_DAYS=7 \
-	poetry run python src/main.py
+	@echo "Running with historical.env"
+	KAFKA_BROKER_ADDRESS='localhost:19092' \
+	source ./historical.env && poetry run python src/main.py
+
 build:
 	docker build -t trade-producer .
 

@@ -1,11 +1,11 @@
 import json
-from pathlib import Path
-from time import sleep
-from typing import Dict, List, Optional, Tuple
 from datetime import datetime, timezone
+from time import sleep
+from typing import Dict, List, Tuple
 
 import requests
 from loguru import logger
+
 
 #creating a class to fetch data from the Kraken REST API for multiple products, using the initia KrakenRestAPI class
 class KrakenRestAPIMultipleProducts:
@@ -119,7 +119,7 @@ class KrakenRestAPI :
         payload = {}
         headers = {'Accept': 'application/json'}
         since_sec = self.last_ts_in_ms // 1000
-        url = self.url.format(product_id = self.product_id, since_sec = self.from_ms)
+        url = self.url.format(product_id = self.product_id, since_sec = since_sec)
         #breakpoint()
         response = requests.request("GET", url, headers=headers, data=payload)
         #parse string into dicrionary
