@@ -1,17 +1,26 @@
-import os
-from typing import List, Optional
+#import os
+from typing import Optional
 from pydantic_settings import BaseSettings
-from dotenv import load_dotenv
 
-# This will load the environment variables from the .env file.
-load_dotenv()
 class Config(BaseSettings):
-    kafka_broker_address: Optional[str] = os.environ.get('KAFKA_BROKER_ADDRESS')
-    kafka_input_topic_name: str = 'trades'
-    kafka_output_topic_name: str = 'ohlc'
-    kafka_consumer_group: str = 'trade_to_ohlc'
-    ohlc_window_secs: int = os.environ.get('OHLC_WINDOW_SECS')
-    
+    """
+    Configuration settings for the trade_to_ohlc service
+
+    Attributes:
+        kafka_broker_address (str): The address of the Kafka broker.
+        kafka_input_topic (str): The name of the Kafka topic where the trade data is read from.
+        kafka_output_topic (str): The name of the Kafka topic where the OHLC data is written to.
+        ohlc_window_seconds (int): The window size in seconds for OHLC aggregation.
+
+    Values are read from environment variables.
+    If they are not found there, default values are used.
+    """
+
+    kafka_broker_address: Optional[str] = None
+    kafka_input_topic: str
+    kafka_output_topic: str
+    kafka_consumer_group: str
+    ohlc_window_seconds: int
 
 
 config = Config()

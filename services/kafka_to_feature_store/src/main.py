@@ -62,8 +62,9 @@ def kafka_to_feature_store(
                 #and if it was more than N minutes ago we will push the data to the feature store regardless of the buffer size
                 n_sec = 10 
                 # check how many seconds has passed since the last message was received and compare it to the n_sec
-                if (get_current_utc_ts() - last_save_to_feature_store_ts)>= n_sec:
+                if (get_current_utc_ts() - last_save_to_feature_store_ts)>= n_sec and len(buffer) > 0:
                     logger.debug("Excedeed the timer limit, pushing the data to the feature store")
+                    #breakpoint()
                     #push the available data to the feature store
                     push_data_to_feature_store(
                         data=buffer, 
@@ -90,7 +91,7 @@ def kafka_to_feature_store(
                 #append the data to the buffer
                 buffer.append(ohlc)
                 logger.info(f"current buffer length: {len(buffer)}")
-                #breakpoint()
+                
                 #check if the buffer is full
                 if len(buffer) >= buffer_size:
                     # step 2 -> store the data in the feature store
@@ -100,6 +101,7 @@ def kafka_to_feature_store(
                         feature_group_version=feature_group_version,
                         online_or_offline = "online"  if live_or_historical == "live" else "offline"
                     )
+                
                     #clear the buffer
                     buffer = []
                 # update the last_save_to_feature_store_ts
@@ -112,7 +114,7 @@ def kafka_to_feature_store(
                 #     online_or_offline = "online"
                 # )
 
-            value = msg.value()
+            #value = msg.value()
             # Do some work with the value here ...
 
             # Store the offset of the processed message on the Consumer 
@@ -120,7 +122,7 @@ def kafka_to_feature_store(
             # It will send it to Kafka in the background.
             # Storing offset only after the message is processed enables at-least-once delivery
             # guarantees.
-            consumer.store_offsets(message=msg)# telling kafka that this consumer group has red up until this message
+            #consumer.store_offsets(message=msg)# telling kafka that this consumer group has red up until this message
 
 if __name__ == "__main__":
     try: 

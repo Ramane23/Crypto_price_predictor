@@ -19,4 +19,4 @@ class Config(BaseSettings):
 
 config = Config()
 
-print(config.kafka_broker_address)
+#print(config.kafka_broker_address)

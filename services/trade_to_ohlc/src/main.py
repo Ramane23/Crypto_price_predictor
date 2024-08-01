@@ -1,13 +1,33 @@
 from config import config
 from loguru import logger
 from datetime import timedelta
+from typing import Any, List, Optional, Tuple
+from quixstreams import Application
+
+def custom_ts_extractor(
+    value: Any,
+    headers: Optional[List[Tuple[str, bytes]]],
+    timestamp: float,
+    timestamp_type,  #: TimestampType,
+) -> int:
+    """
+    Specifying a custom timestamp extractor to use the timestamp from the message payload
+    instead of Kafka timestamp.
+
+    We want to use the `timestamp_ms` field from the message value, and not the timestamp
+    of the message that Kafka generates when the message is saved into the Kafka topic.
+    
+    See the Quix Streams documentation here
+    https://quix.io/docs/quix-streams/windowing.html#extracting-timestamps-from-messages
+    """
+    return value['timestamp_ms']
 
 def trade_to_ohlc(
     kafka_input_topic: str,
     kafka_output_topic: str,
     kafka_consumer_group: str,
     kafka_broker_address: str,
-    ohlc_window_secs: int,
+    ohlc_window_seconds: int
 ) -> None:
     """Reads trades from a Kafka topic and produces OHLC data to another Kafka topic
 
@@ -15,11 +35,10 @@ def trade_to_ohlc(
         kafka_input_topic (str): the name of the Kafka topic where the trades are stored
         kafka_output_topic (str): the name of the Kafka topic where the OHLC data will be stored
         kafka_broker_address (str): the address of the Kafka broker
-        ohlc_window_secs (int): the window size in seconds for the OHLC data
+        ohlc_window_seconds (int): the window size in seconds for the OHLC data
     Returns:
         None
     """
-    from quixstreams import Application
     app = Application(
         broker_address=kafka_broker_address,
         consumer_group=kafka_consumer_group,#when we are reading from a topic, we need to specify the consumer group
@@ -27,8 +46,15 @@ def trade_to_ohlc(
         #auto_create_reset= "latest" #forget passed messages
     )
 
+    #clearing the state store whenever the chanhelogic has been deleted
+    app.clear_state()
+
     #specify input and output topics
-    input_topic = app.topic(name=kafka_input_topic, value_serializer="json")
+    input_topic = app.topic(
+        name=kafka_input_topic,
+        value_serializer='json',
+        timestamp_extractor=custom_ts_extractor,
+    )
     output_topic = app.topic(name=kafka_output_topic, value_serializer="json")
 
     #creating a streaming dataframe from the input topic
@@ -74,9 +100,9 @@ def trade_to_ohlc(
         }
     
     #creating a tumbling window 
-    sdf=sdf.tumbling_window(duration_ms=timedelta(seconds = ohlc_window_secs))
+    sdf=sdf.tumbling_window(duration_ms=timedelta(seconds = ohlc_window_seconds))
     #applying reduce function to the window
-    # Create a "reduce" aggregation with "reducer" and "initializer" functions
+    # Create a "reduce" aggregation with "reducer" and "initializer" functions and wait until the end of the window to return the candle
     sdf=sdf.reduce(reducer=update_ohlc_candle, initializer=init_ohlc_candle).final()
 
     # extract the open, high, low, close prices from the value key
@@ -127,10 +153,17 @@ def trade_to_ohlc(
 
 if __name__ == "__main__":
     #read configuration parameters from config file
-    kafka_input_topic = config.kafka_input_topic_name
-    kafka_output_topic = config.kafka_output_topic_name
+    kafka_input_topic = config.kafka_input_topic
+    kafka_output_topic = config.kafka_output_topic
     kafka_consumer_group = config.kafka_consumer_group
     kafka_broker_address = config.kafka_broker_address
-    ohlc_window_secs = config.ohlc_window_secs
-
-trade_to_ohlc(kafka_input_topic, kafka_output_topic, kafka_broker_address, ohlc_window_secs)
+    ohlc_window_seconds = config.ohlc_window_seconds
+try:
+    trade_to_ohlc(kafka_input_topic, 
+                  kafka_output_topic,
+                  kafka_consumer_group, 
+                  kafka_broker_address, 
+                  ohlc_window_seconds
+        )
+except KeyboardInterrupt:
+        logger.info("Exiting...")   
