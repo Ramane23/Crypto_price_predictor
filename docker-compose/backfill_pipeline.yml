@@ -17,9 +17,9 @@ services:
       - redpanda_network # Connect this service to the Redpanda network
     environment:
       KAFKA_BROKER_ADDRESS: redpanda-0:9092 # Set the environment variable for the Kafka broker address
-      LIVE_OR_HISTORICAL: "historical"
-      LAST_N_DAYS: 7
-    restart: always # Always restart the container if it stops
+    env_file:
+      - ../services/trade_producer/setup_historical_config.sh
+    restart: on-failure # restart the container if it stops, i.e in case of failure
 
   trade_to_ohlc:
     container_name: backfill_trade_to_ohlc # Optionally specify a container name
@@ -30,8 +30,8 @@ services:
     environment:
       KAFKA_BROKER_ADDRESS: redpanda-0:9092 # Set the environment variable for the Kafka broker address
     env_file:
-      - ../services/trade_to_ohlc/.env
-      #- ../services/trade_to_ohlc/setup_live_config.sh # Load environment variables from this file
+      #- ../services/trade_to_ohlc/historical.env
+      - ../services/trade_to_ohlc/setup_historical_config.sh # Load environment variables from this file
     restart: always # Always restart the container if it stops
 
   kafka_to_feature_store:
@@ -42,11 +42,10 @@ services:
       - redpanda_network # Connect this service to the Redpanda network
     environment:
       KAFKA_BROKER_ADDRESS: redpanda-0:9092 # Set the environment variable for the Kafka broker address
-      LIVE_OR_HISTORICAL: "historical"
-      #BUFFER_SIZE: 1000
 
     env_file:
-      - ../services/kafka_to_feature_store/.env
-      #- ../services/kafka_to_feature_store/setup_live_config.sh # Load environment variables from this file
-      #- ../services/kafka_to_feature_store/setup_credentials.sh # Load additional environment variables from this file
+      #- ../services/kafka_to_feature_store/historical.env
+      #- ../services/kafka_to_feature_store/credentials.env
+      - ../services/kafka_to_feature_store/setup_historical_config.sh # Load environment variables from this file
+      - ../services/kafka_to_feature_store/setup_credentials.sh # Load additional environment variables from this file
     restart: always # Always restart the container if it stops

@@ -194,3 +194,4 @@ ca.cert
 **/setup_credentials.sh
 *.csv
 **/credentials.env
+**/.sh

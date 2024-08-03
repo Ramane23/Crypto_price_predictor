@@ -42,8 +42,11 @@ def trade_to_ohlc(
     app = Application(
         broker_address=kafka_broker_address,
         consumer_group=kafka_consumer_group,#when we are reading from a topic, we need to specify the consumer group
-        auto_offset_reset="earliest",#read from the beginning of the topic, meaning all the messages
-        #auto_create_reset= "latest" #forget passed messages
+        # we shoul understand that this is relevant when the consumer group doesn't already exits
+        #because if the consumer group already exists, it will start reading from the last offset
+        #meaning that it will start reading from the last message that was read by the consumer group
+        #auto_offset_reset="earliest",#read from the beginning of the topic, meaning all the messages (right for backfilling)
+        auto_offset_reset= "latest" #forget passed messages (right for real-time processing)
     )
 
     #clearing the state store whenever the chanhelogic has been deleted
@@ -166,4 +169,4 @@ try:
                   ohlc_window_seconds
         )
 except KeyboardInterrupt:
-        logger.info("Exiting...")   
+        logger.info("Stopping the candle generation...")   

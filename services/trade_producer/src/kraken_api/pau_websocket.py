@@ -1,11 +1,10 @@
 import json
+from datetime import datetime, timezone
 from typing import List
 
+from kraken_api.trade import Trade
 from loguru import logger
 from websocket import create_connection
-
-from kraken_api.trade import Trade
-from datetime import datetime, timezone
 
 
 class KrakenWebsocketTradeAPI:

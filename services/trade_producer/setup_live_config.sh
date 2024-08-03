@@ -1,7 +1,6 @@
-#!/bin/sh
-export KAFKA_TOPIC_NAME='your_kafka_topic'
-export PRODUCT_IDS='your_product_ids'
-export LIVE_OR_HISTORICAL='live'
+export KAFKA_TOPIC_NAME="trades_live"
+export PRODUCT_IDS='["BTC/USD"]'
+export LIVE_OR_HISTORICAL="live"
 
 
 

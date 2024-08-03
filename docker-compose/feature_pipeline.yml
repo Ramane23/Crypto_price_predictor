@@ -18,7 +18,7 @@ services:
     environment:
       KAFKA_BROKER_ADDRESS: redpanda-0:9092 # Set the environment variable for the Kafka broker address
     env_file:
-      - ../services/trade_producer/.env
+      - ../services/trade_producer/setup_live_config.sh # Load environment variables from this file
     restart: always # Always restart the container if it stops
 
   trade_to_ohlc:
@@ -31,20 +31,21 @@ services:
       KAFKA_BROKER_ADDRESS: redpanda-0:9092 # Set the environment variable for the Kafka broker address
       LIVE_OR_HISTORICAL: "live"
     env_file:
-      - ../services/trade_to_ohlc/.env
-      #- ../services/trade_to_ohlc/setup_live_config.sh # Load environment variables from this file
+      #- ../services/trade_to_ohlc/historical.env
+      - ../services/trade_to_ohlc/setup_live_config.sh # Load environment variables from this file
     restart: always # Always restart the container if it stops
 
-  # kafka_to_feature_store:
-  #     container_name: kafka_to_feature_store # Specify a container name for this service
-  #     build:
-  #       context: ../services/kafka_to_feature_store # Specify the build context for the kafka_to_feature_store service
-  #     networks:
-  #       - redpanda_network # Connect this service to the Redpanda network
-  #     environment:
-  #       KAFKA_BROKER_ADDRESS: redpanda-0:9092 # Set the environment variable for the Kafka broker address
-  #     env_file:
-  #       - ../services/kafka_to_feature_store/.env
-  #       #- ../services/kafka_to_feature_store/setup_live_config.sh # Load environment variables from this file
-  #       #- ../services/kafka_to_feature_store/setup_credentials.sh # Load additional environment variables from this file
-  #     restart: always # Always restart the container if it stops
+  kafka_to_feature_store:
+    container_name: kafka_to_feature_store # Specify a container name for this service
+    build:
+      context: ../services/kafka_to_feature_store # Specify the build context for the kafka_to_feature_store service
+    networks:
+      - redpanda_network # Connect this service to the Redpanda network
+    environment:
+      KAFKA_BROKER_ADDRESS: redpanda-0:9092 # Set the environment variable for the Kafka broker address
+    env_file:
+      #- ../services/kafka_to_feature_store/historical.env
+      #- ../services/kafka_to_feature_store/credentials.env
+      - ../services/kafka_to_feature_store/setup_live_config.sh # Load environment variables from this file
+      - ../services/kafka_to_feature_store/setup_credentials.sh # Load additional environment variables from this file
+    restart: always # Always restart the container if it stops

@@ -1,31 +1,38 @@
 run-dev:
 	@echo "Running with live.env"
 	KAFKA_BROKER_ADDRESS='localhost:19092' \
-	source ./live.env && poetry run python src/main.py
+	source ./setup_live_config.sh && poetry run python src/main.py
 	
 run-dev-historical:
 	@echo "Running with historical.env"
 	KAFKA_BROKER_ADDRESS='localhost:19092' \
-	source ./historical.env && poetry run python src/main.py
+	source ./setup_historical_config.sh && poetry run python src/main.py
 
 build:
 	docker build -t trade-producer .
 
 run: build
-	# Specifies the container name
-	# Connects the container to the specified Docker network
-	# Sets environment variable for Kafka broker address
-	# Sets environment variable for Kafka topic name
-	# Sets environment variable for product IDs
-	# Sets environment variable to indicate live or historical data
 	docker run \
-		--name trade_producer_instance \
 		--network=redpanda_network \
 		-e KAFKA_BROKER_ADDRESS=redpanda-0:9092 \
 		-e KAFKA_TOPIC=trade \
 		-e PRODUCT_IDS='["BTC/USD"]' \
 		-e LIVE_OR_HISTORICAL=live \
-		trade-producer  # The name of the Docker image to run
+		trade-producer
+
+run-historical: build
+	docker volume create trade-producer-volume
+	docker run \
+		--name trade-producer_instance \
+		--network=redpanda_network \
+		-e KAFKA_BROKER_ADDRESS=redpanda-0:9092 \
+		-e KAFKA_TOPIC=trade_historical \
+		-e PRODUCT_IDS='["BTC/USD"]' \
+		-e LIVE_OR_HISTORICAL=historical \
+		-e LAST_N_DAYS=90 \
+		-e CACHE_DIR_HISTORICAL_DATA=/tmp/historical_trade_data \
+		-v trade-producer-volume:/tmp/historical_trade_data \
+		trade-producer
 
 lint:
 	poetry run ruff check --fix

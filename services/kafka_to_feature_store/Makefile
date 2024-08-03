@@ -1,4 +1,15 @@
 run-dev:
+	@echo "Running with live.env and credentials.env"
+	KAFKA_BROKER_ADDRESS='localhost:19092' \
+	source ./setup_credentials.sh && \
+	source ./setup_live_config.sh && \
+	poetry run python src/main.py
+	
+run-dev-historical:
+	@echo "Running with historical.env and credentials.env"
+	KAFKA_BROKER_ADDRESS='localhost:19092' \
+	source ./setup_credentials.sh && \
+	source ./setup_historical_config.sh && \
 	poetry run python src/main.py
 	
 build:

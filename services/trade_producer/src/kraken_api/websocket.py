@@ -1,9 +1,10 @@
 import json
+from datetime import datetime, timezone
 from typing import List
+
+from kraken_api.trade import Trade
 from loguru import logger
 from websocket import create_connection
-from kraken_api.trade import Trade
-from datetime import datetime, timezone
 
 
 class KrakenWebsocketTradeAPI:
@@ -15,7 +16,7 @@ class KrakenWebsocketTradeAPI:
 
     def __init__(
         self,
-        #product_ids: List[str]
+        # product_ids: List[str]
         product_ids: List[str],
     ):
         self.product_ids = product_ids
@@ -25,19 +26,15 @@ class KrakenWebsocketTradeAPI:
 
         # Subscribe to the trade channel
         self._subscribe(product_ids)
-        self.is_done : bool = False
+        self.is_done: bool = False
 
-    def _subscribe(self, product_ids : List[str]):
+    def _subscribe(self, product_ids: List[str]):
         """Subscribe to the trade channel of a product"""
         logger.info(f'subscribing to trade channel for {product_ids}')
         # Subscribe to the trade channel
         msg = {
             'method': 'subscribe',
-            'params': {
-                'channel': 'trade', 
-                'symbol': product_ids, 
-                'snapshot': False
-                }
+            'params': {'channel': 'trade', 'symbol': product_ids, 'snapshot': False},
         }
         # Send the message
         self._ws.send(json.dumps(msg))
@@ -51,7 +48,7 @@ class KrakenWebsocketTradeAPI:
         """Get trades from the Kraken API and return a list of trades"""
         # Get the response from the websocket API
         message = self._ws.recv()
-        #breakpoint()
+        # breakpoint()
         # filter out the heartbeat messages
         if 'heartbeat' in message:
             # return an empty list when a heartbeat message is received
@@ -59,7 +56,7 @@ class KrakenWebsocketTradeAPI:
 
         # parse the message as a dictionary
         message = json.loads(message)
-        #breakpoint()
+        # breakpoint()
 
         # print("received response", message)
 
@@ -67,7 +64,7 @@ class KrakenWebsocketTradeAPI:
         trades = []
         for trade in message['data']:
             # transform the timestamp into milliseconds
-            timestamp_ms= self.to_ms(trade['timestamp'])
+            timestamp_ms = self.to_ms(trade['timestamp'])
             # append the trade to the list of trades and using the pydantic Trade class to validate the retrieved trades keys
             trades.append(
                 Trade(
@@ -85,7 +82,7 @@ class KrakenWebsocketTradeAPI:
             #     }
             # )
         return trades
-    
+
     def done(self) -> bool:
         """Checks if we are done fetching live data
 
@@ -111,5 +108,9 @@ class KrakenWebsocketTradeAPI:
         # into a datetime object assuming UTC timezone
         # and then transform this datetime object into Unix timestamp
         # expressed in milliseconds
-        timestamp = datetime.fromisoformat(timestamp[:-1]).replace(tzinfo=timezone.utc) # remove the 'Z' at the end of the string and converting to UTC timezone
-        return int(timestamp.timestamp() * 1000) # transform the timestamp into milliseconds
+        timestamp = datetime.fromisoformat(timestamp[:-1]).replace(
+            tzinfo=timezone.utc
+        )  # remove the 'Z' at the end of the string and converting to UTC timezone
+        return int(
+            timestamp.timestamp() * 1000
+        )  # transform the timestamp into milliseconds

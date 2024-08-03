@@ -20,8 +20,9 @@ def kafka_to_feature_store(
     feature_group_name: str,
     feature_group_version: int,
     live_or_historical: Optional[str] = "live", #live or historical mode
-    buffer_size: Optional[int] = 1 #contains the trades that we want to write to the feature store at once
+    buffer_size: Optional[int] = 1, #contains the trades that we want to write to the feature store at once
 )-> None:
+    save_every_n_sec: Optional[int] = 600 #force save to feature store every n seconds 
     """
     Stream data from the ohlc Kafka topic to the hopsworks feature store in the specified feature group
     Args:
@@ -40,7 +41,10 @@ def kafka_to_feature_store(
     app = Application(
         broker_address=kafka_broker_address,
         consumer_group="kafka_to_feature_store",
-        auto_offset_reset="earliest"
+        # we shoul understand that this is relevant when the consumer group doesn't already exits
+        #because if the consumer group already exists, it will start reading from the last offset
+        #meaning that it will start reading from the last message that was read by the consumer group
+        auto_offset_reset="earliest" if live_or_historical == 'historical' else "latest" 
     )
     logger.info("Application created")
     #get current UTC in seconds
@@ -60,9 +64,10 @@ def kafka_to_feature_store(
                 # No new messages available in the input topic
                 #instead of skipping we will check when was the last time we received a message
                 #and if it was more than N minutes ago we will push the data to the feature store regardless of the buffer size
-                n_sec = 10 
-                # check how many seconds has passed since the last message was received and compare it to the n_sec
-                if (get_current_utc_ts() - last_save_to_feature_store_ts)>= n_sec and len(buffer) > 0:
+                #save_every_n_sec = 10 
+                # check how many seconds has passed since the last message was received and compare it to the save_every_n_sec
+                #breakpoint()
+                if (get_current_utc_ts() - last_save_to_feature_store_ts)>= save_every_n_sec and len(buffer) > 0:
                     logger.debug("Excedeed the timer limit, pushing the data to the feature store")
                     #breakpoint()
                     #push the available data to the feature store
@@ -75,7 +80,7 @@ def kafka_to_feature_store(
                     #clear the buffer
                     buffer = []
                 else:
-                    #if the last message was received less than n_sec seconds ago we will skip to the next iteration
+                    #if the last message was received less than save_every_n_sec seconds ago we will skip to the next iteration
                     logger.debug("Timer limit not excedeed, continuing the polling from the input Kafka topic")
                     continue
             elif msg.error():
@@ -135,7 +140,7 @@ if __name__ == "__main__":
             buffer_size = config.buffer_size
         )
     except KeyboardInterrupt:
-        logger.info("Stopping the application...")
+        logger.info("Stopping the storing...")
     # kafka_to_feature_store(
     #     kafka_topic = config.kafka_topic,
     #     kafka_broker_address = config.kafka_broker_address,

@@ -1,12 +1,12 @@
 run-dev:
 	@echo "Running with live.env"
 	KAFKA_BROKER_ADDRESS='localhost:19092' \
-	source ./live.env && poetry run python src/main.py
+	source ./setup_live_config.sh && poetry run python src/main.py
 	
 run-dev-historical:
 	@echo "Running with historical.env"
 	KAFKA_BROKER_ADDRESS='localhost:19092' \
-	source ./historical.env && poetry run python src/main.py
+	source ./setup_historical_config.sh && poetry run python src/main.py
 
 build:
 	docker build -t trade-to-ohlc .
