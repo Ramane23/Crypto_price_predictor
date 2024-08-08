@@ -21,6 +21,9 @@ def kafka_to_feature_store(
     feature_group_version: int,
     live_or_historical: Optional[str] = "live", #live or historical mode
     buffer_size: Optional[int] = 1, #contains the trades that we want to write to the feature store at once
+    #whether to create a new consumer group or not 
+    #useful for when we want to retrieve historical data from aan ohlc kafka topic
+    create_new_consumer_group: Optional[bool] = False 
 )-> None:
     save_every_n_sec: Optional[int] = 600 #force save to feature store every n seconds 
     """
@@ -37,6 +40,19 @@ def kafka_to_feature_store(
     Returns:
         None
     """
+    # to force your application to read from the beginning of the topic
+    # you need 2 things:
+    # 1. Create a unique consumer group name
+    # 2. Set the auto_offset_reset to 'earliest' -> offset for this new consuemr group is 0.
+    # Which means that when you spin up the `kafka_to_feature_store` service again, it 
+    # will re-process all the messages in the topic `kafka_topic`
+    if create_new_consumer_group:
+        # generate a unique consumer group name using uuid
+        import uuid
+        kafka_consumer_group = 'ohlc_historical_consumer_group_' + str(uuid.uuid4())
+        logger.debug(f'New consumer group name: {kafka_consumer_group}')
+
+    # breakpoint()
     # Create a new application
     app = Application(
         broker_address=kafka_broker_address,
@@ -137,7 +153,8 @@ if __name__ == "__main__":
             feature_group_name = config.feature_group_name,
             feature_group_version = config.feature_group_version,
             live_or_historical = config.live_or_historical,
-            buffer_size = config.buffer_size
+            buffer_size = config.buffer_size,
+            create_new_consumer_group=config.create_new_consumer_group
         )
     except KeyboardInterrupt:
         logger.info("Stopping the storing...")

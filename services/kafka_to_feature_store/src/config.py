@@ -10,6 +10,7 @@ class Config(BaseSettings):
     kafka_consumer_group: str
     feature_group_name: str
     feature_group_version: int
+    create_new_consumer_group: bool = False
 
     # by default we want our `kafka_to_feature_store` service to run in live mode
     live_or_historical: str = 'live'
