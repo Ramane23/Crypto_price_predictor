@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "new"
+version = "0.1.0"
+description = ""
+authors = ["Ramane23 <contactsouley@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+src = {path = "../../tools"}
+comet-ml = "^3.44.4"
+scikit-learn = "^1.5.1"
+xgboost = "^2.1.1"
+loguru = "^0.7.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

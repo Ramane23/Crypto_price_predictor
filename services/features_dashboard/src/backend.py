@@ -1,5 +1,5 @@
 from typing import List, Dict
-
+import time
 import hopsworks
 #from hopsworks.feature_store import FeatureView
 from hsfs.client.exceptions import FeatureStoreException
@@ -70,6 +70,7 @@ def get_features_from_the_store(
     # For the moment, let's get all rows from this feature group
     if online_or_offline == 'offline':
         try:
+            #retrieving the data from the offline feature store which is a structured store (like SQLite)
             features: pd.DataFrame = feature_view.get_batch_data()
 
         except FeatureStoreException:
@@ -78,7 +79,8 @@ def get_features_from_the_store(
             features: pd.DataFrame = feature_view.get_batch_data(read_options={"use_hive": True})
     else:
         # we fetch from the online feature store.
-        # we need to build this list of dictionaries with the primary keys
+        # we need to build this list of dictionaries with the primary keys because the online feature store does not support batch reads
+        #it is designed for fast online reads of individual rows and require the primary keys to be passed
         features = feature_view.get_feature_vectors(
             entry=get_primary_keys(last_n_minutes=20),
             return_type="pandas"
@@ -101,7 +103,6 @@ def get_primary_keys(last_n_minutes: int) -> List[Dict]:
     Returns a list of dictionaries with the primary keys of the rows we want to fetch
     """
     # get current UTC in milliseconds and floor it to the previous minute
-    import time
     current_utc = int(time.time() * 1000)
     current_utc = current_utc - (current_utc % 60000)
 
