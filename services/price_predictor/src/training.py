@@ -6,15 +6,15 @@ from typing import Tuple, Optional
 from comet_ml import Experiment
 import matplotlib.pyplot as plt
 
-from baseline_model import BaselineModel
-from feature_engineering import add_features
-from data_preprocessing import (
+from src.baseline_model import BaselineModel
+from src.feature_engineering import add_features
+from src.data_preprocessing import (
     interpolate_missing_candles,
     create_target_metric
 )
-from utils import get_model_name
+from src.utils import get_model_name
 
-from tools.src.ohlc_data_reader import OhlcDataReader
+from tools.tools.ohlc_data_reader import OhlcDataReader
 
 
 def train(
@@ -351,7 +351,7 @@ if __name__ == '__main__':
 
     train(
         feature_view_name='ohlc_feature_view',
-        feature_view_version=10,
+        feature_view_version=1,
         ohlc_window_sec=60,
         product_id='BTC/USD',
         last_n_days_to_fetch_from_store=90,
