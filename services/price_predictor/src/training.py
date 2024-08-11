@@ -6,13 +6,23 @@ from typing import Tuple, Optional
 from comet_ml import Experiment
 import matplotlib.pyplot as plt
 
-from src.baseline_model import BaselineModel
-from src.feature_engineering import add_features
-from src.data_preprocessing import (
+from baseline_model import BaselineModel
+from feature_engineering import add_features
+from data_preprocessing import (
     interpolate_missing_candles,
     create_target_metric
 )
-from src.utils import get_model_name
+from config import config
+from utils import get_model_name
+
+import sys
+import os
+
+# Get the path three levels up from the current script/notebook
+parent_dir = os.path.abspath(os.path.join(os.getcwd(), os.pardir, os.pardir))
+
+# Add this directory to sys.path
+sys.path.append(parent_dir)
 
 from tools.tools.ohlc_data_reader import OhlcDataReader
 
@@ -49,10 +59,12 @@ def train(
         The model artifact is pushed to the model registry.
     """
     # Create an experiment to log metadata to CometML
+    #load the api key, project name and workspace from the environment variables
+    
     experiment = Experiment(
-        api_key=os.environ['COMET_ML_API_KEY'],
-        project_name=os.environ['COMET_ML_PROJECT_NAME'],
-        workspace=os.environ['COMET_ML_WORKSPACE'],
+        api_key=config.comet_ml_api_key,
+        project_name=config.comet_ml_project_name,
+        workspace=config.comet_ml_workspace,
     )
 
     # log all the input parameters to the training function
@@ -261,9 +273,8 @@ def train(
     # In this case I want to push the model to the model registry, no matter its performance
     # because I want us to move on to the next step in the project, which is the
     # inference pipeline and the deployment.
-    if test_mae < baseline_test_mae:
-    # if True:
-
+    #if test_mae < baseline_test_mae:
+    if True:
         # push the model to the model registry
         experiment.register_model(
             model_name=model_name,

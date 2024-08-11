@@ -1,6 +1,6 @@
 train:
 	source ../../setup_credentials.sh && \
-	poetry run python src/training.py
+	python src/training.py
 
 predict:
 	source ../../setup_credentials.sh && \
