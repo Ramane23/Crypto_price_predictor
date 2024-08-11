@@ -4,7 +4,7 @@ train:
 
 predict:
 	source ../../setup_credentials.sh && \
-	poetry run python src/predictor.py
+	python src/predictor.py
 
 api:
 	source ../../setup_credentials.sh && \

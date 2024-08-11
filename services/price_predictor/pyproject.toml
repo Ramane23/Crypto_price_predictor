@@ -15,6 +15,7 @@ tools = {path = "../../tools"}
 lightgbm = "^4.5.0"
 pandas = "^2.2.2"
 matplotlib = "^3.9.1.post1"
+pydantic = "^2.8.2"
 
 
 
