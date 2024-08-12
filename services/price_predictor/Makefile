@@ -8,7 +8,7 @@ predict:
 
 api:
 	source ../../setup_credentials.sh && \
-	poetry run python src/api.py
+	python src/api.py
 
 request:
 	curl -X POST http://127.0.0.1:5005/predict -H "Content-Type: application/json" -d '{"product_id":"BTC/USD"}'
