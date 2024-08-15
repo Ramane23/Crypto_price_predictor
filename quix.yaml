@@ -5,7 +5,31 @@ metadata:
   version: 1.0
 
 # This section describes the Deployments of the data pipeline
-deployments: []
+deployments:
+  - name: trade_producer
+    application: services/trade_producer
+    version: latest
+    deploymentType: Service
+    resources:
+      cpu: 200
+      memory: 500
+      replicas: 1
+    variables:
+      - name: KAFKA_TOPIC_NAME
+        inputType: InputTopic
+        description: This is the kafka topic where the fetchedd trades (from the websocket API) will be stored / produced
+        required: true
+        value: trades_live
+      - name: PRODUCT_IDS
+        inputType: FreeText
+        description: This is the list of cryptos we want to fetch data for
+        required: true
+        value: "'[\"BTC/USD\"]'"
+      - name: LIVE_OR_HISTORICAL
+        inputType: FreeText
+        description: This is to indicate that we want to fetch live / real-time trades data
+        required: true
+        value: live
 
 # This section describes the Topics of the data pipeline
 topics:
