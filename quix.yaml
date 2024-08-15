@@ -35,3 +35,4 @@ deployments:
 topics:
   - name: trades_live
   - name: ohlc_live
+  - name: trade_to_ohlc_live_consumer_group
