@@ -50,7 +50,7 @@ def trade_to_ohlc(
     )
 
     #clearing the state store whenever the chanhelogic has been deleted
-    app.clear_state()
+    #app.clear_state()
 
     #specify input and output topics
     input_topic = app.topic(
