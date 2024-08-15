@@ -16,6 +16,11 @@ variables:
     description: length of the ohlc candles
     defaultValue: 60
     required: true
+  - name: KAFKA_CONSUMER_GROUP
+    inputType: FreeText
+    description: ''
+    defaultValue: trade_to_ohlc_live_consumer_group
+    required: true
 dockerfile: Dockerfile
 runEntryPoint: src/main.py
 defaultFile: src/main.py
