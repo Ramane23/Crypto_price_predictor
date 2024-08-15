@@ -59,6 +59,55 @@ deployments:
         description: length of the ohlc candles
         required: true
         value: 60
+  - name: kafka_to_feature_store
+    application: services/kafka_to_feature_store
+    version: latest
+    deploymentType: Service
+    resources:
+      cpu: 200
+      memory: 500
+      replicas: 1
+    variables:
+      - name: KAFKA_TOPIC
+        inputType: InputTopic
+        description: kafka topic from which we will read the ohlc candles
+        required: true
+        value: ohlc_live
+      - name: KAFKA_CONSUMER_GROUP
+        inputType: FreeText
+        description: the consumer group to read the ohlc candles from the ohlc kafka topic
+        required: true
+        value: ohlc_live_consumer_group
+      - name: FEATURE_GROUP_NAME
+        inputType: FreeText
+        description: This is the name of the feature group from the hopsworks feature store
+        required: true
+        value: ohlc_feature_group
+      - name: FEATURE_GROUP_VERSION
+        inputType: FreeText
+        description: This is the version of the hopsworks feature group we are using
+        required: true
+        value: 1
+      - name: BUFFER_SIZE
+        inputType: FreeText
+        description: This is the number of ohlc candles we will push to the feature store at once
+        required: true
+        value: 1
+      - name: LIVE_OR_HISTORICAL
+        inputType: FreeText
+        description: we are running on live mode
+        required: true
+        value: live
+      - name: HOPSWORKS_API_KEY
+        inputType: Secret
+        description: ''
+        required: true
+        secretKey: HOPSWORKS_API_KEY
+      - name: HOPSWORKS_PROJECT_NAME
+        inputType: Secret
+        description: ''
+        required: true
+        secretKey: HOPSWORKS_PROJECT_NAME
 
 # This section describes the Topics of the data pipeline
 topics:

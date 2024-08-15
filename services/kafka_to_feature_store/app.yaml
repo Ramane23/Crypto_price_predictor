@@ -1,6 +1,46 @@
 name: kafka_to_feature_store
 language: python
-variables: []
+variables:
+  - name: KAFKA_TOPIC
+    inputType: InputTopic
+    description: kafka topic from which we will read the ohlc candles
+    defaultValue: ohlc_live
+    required: true
+  - name: KAFKA_CONSUMER_GROUP
+    inputType: FreeText
+    description: the consumer group to read the ohlc candles from the ohlc kafka topic
+    defaultValue: ohlc_live_consumer_group
+    required: true
+  - name: FEATURE_GROUP_NAME
+    inputType: FreeText
+    description: This is the name of the feature group from the hopsworks feature store
+    defaultValue: ohlc_feature_group
+    required: true
+  - name: FEATURE_GROUP_VERSION
+    inputType: FreeText
+    description: This is the version of the hopsworks feature group we are using
+    defaultValue: 1
+    required: true
+  - name: BUFFER_SIZE
+    inputType: FreeText
+    description: This is the number of ohlc candles we will push to the feature store at once
+    defaultValue: 1
+    required: true
+  - name: LIVE_OR_HISTORICAL
+    inputType: FreeText
+    description: we are running on live mode
+    defaultValue: live
+    required: true
+  - name: HOPSWORKS_API_KEY
+    inputType: Secret
+    description: ''
+    defaultValue: HOPSWORKS_API_KEY
+    required: true
+  - name: HOPSWORKS_PROJECT_NAME
+    inputType: Secret
+    description: ''
+    defaultValue: HOPSWORKS_PROJECT_NAME
+    required: true
 dockerfile: Dockerfile
 runEntryPoint: src/main.py
 defaultFile: src/main.py
