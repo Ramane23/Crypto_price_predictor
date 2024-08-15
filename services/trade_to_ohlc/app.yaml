@@ -7,7 +7,7 @@ variables:
     defaultValue: trades_live
     required: true
   - name: KAFKA_OUTPUT_TOPIC
-    inputType: InputTopic
+    inputType: OutputTopic
     description: this is the kafka topic where we will save the ohlc candles
     defaultValue: ohlc_live
     required: true
