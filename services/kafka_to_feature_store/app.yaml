@@ -35,7 +35,7 @@ variables:
     inputType: Secret
     description: ''
     defaultValue: HOPSWORKS_API_KEY
-    required: false
+    required: true
 dockerfile: Dockerfile
 runEntryPoint: src/main.py
 defaultFile: src/main.py
