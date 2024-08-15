@@ -6,6 +6,11 @@ variables:
     description: This is the kafka topic from which we will read trades
     defaultValue: trades_live
     required: true
+  - name: KAFKA_OUTPUT_TOPIC
+    inputType: InputTopic
+    description: this is the kafka topic where we will save the ohlc candles
+    defaultValue: ohlc_live
+    required: true
 dockerfile: Dockerfile
 runEntryPoint: src/main.py
 defaultFile: src/main.py
