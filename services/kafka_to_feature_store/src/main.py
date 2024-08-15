@@ -63,6 +63,8 @@ def kafka_to_feature_store(
         auto_offset_reset="earliest" if live_or_historical == 'historical' else "latest" 
     )
     logger.info("Application created")
+    # let's connect the app to the input topic
+    topic = app.topic(name=kafka_topic, value_serializer='json')
     #get current UTC in seconds
     last_save_to_feature_store_ts = get_current_utc_ts()
     #initialize the buffer
@@ -70,8 +72,8 @@ def kafka_to_feature_store(
     #TODO: handle the case where the buffer is not full and there is nor more expected data to come in 
     # as with the current implementation we may miss the last few messages if the buffer is not full (up to buffer_size-1 messages)
     # Create a consumer and start a polling loop
-    with app.get_consumer() as consumer: #creating a consumer with the predifined quixstreams get_consumer() method
-        consumer.subscribe(topics=[kafka_topic]) #subscribing to the topic
+    with app.get_consumer() as consumer:
+        consumer.subscribe(topics=[topic.name])
         logger.info(f"Subscribed to topic {kafka_topic}")
         while True:
             msg = consumer.poll(1) #how much time to wait for a message before skipping to the next iteration
