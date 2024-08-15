@@ -49,16 +49,16 @@ deployments:
         description: this is the kafka topic where we will save the ohlc candles
         required: true
         value: ohlc_live
-      - name: KAFKA_CONSUMER_GROUP
-        inputType: FreeText
-        description: This is the consumer group that we will use to read trades from the input topic
-        required: true
-        value: trade_to_ohlc_live_consumer_group
       - name: OHLC_WINDOW_SECONDS
         inputType: FreeText
         description: length of the ohlc candles
         required: true
         value: 60
+      - name: KAFKA_CONSUMER_GROUP
+        inputType: FreeText
+        description: ''
+        required: true
+        value: trade_to_ohlc_live_consumer_group
   - name: kafka_to_feature_store
     application: services/kafka_to_feature_store
     version: latest
