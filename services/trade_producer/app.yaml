@@ -6,6 +6,16 @@ variables:
     description: This is the kafka topic where the fetched trades (from the websocket API) will be stored / produced
     defaultValue: trades_live
     required: true
+  - name: PRODUCT_IDS
+    inputType: FreeText
+    description: This is the list of cryptos we want to fetch data for
+    defaultValue: '["BTC/USD"]'
+    required: true
+  - name: LIVE_OR_HISTORICAL
+    inputType: FreeText
+    description: This is to indicate that we want to fetch live / real-time trades data
+    defaultValue: live
+    required: true
 dockerfile: Dockerfile
 runEntryPoint: src/main.py
 defaultFile: src/main.py
