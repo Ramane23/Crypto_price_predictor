@@ -88,6 +88,16 @@ deployments:
         description: This is the version of the hopsworks feature group we are using
         required: true
         value: 1
+      - name: BUFFER_SIZE
+        inputType: FreeText
+        description: This is the number of ohlc candles we will push to the feature store at once
+        required: true
+        value: 1
+      - name: LIVE_OR_HISTORICAL
+        inputType: FreeText
+        description: we are running on live mode
+        required: true
+        value: live
 
 # This section describes the Topics of the data pipeline
 topics:
