@@ -6,6 +6,11 @@ variables:
     description: This is the kafka topic from which we will read trades
     defaultValue: trades_live
     required: true
+  - name: KAFKA_INPUT_TOPIC
+    inputType: InputTopic
+    description: topic from which we will read trades
+    defaultValue: trades_live
+    required: true
 dockerfile: Dockerfile
 runEntryPoint: src/main.py
 defaultFile: src/main.py
