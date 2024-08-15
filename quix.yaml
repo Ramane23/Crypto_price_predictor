@@ -34,3 +34,4 @@ deployments:
 # This section describes the Topics of the data pipeline
 topics:
   - name: trades_live
+  - name: ohlc_live
