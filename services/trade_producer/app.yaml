@@ -9,7 +9,7 @@ variables:
   - name: PRODUCT_IDS
     inputType: FreeText
     description: This is the list of cryptos we want to fetch data for
-    defaultValue: "'[\"BTC/USD\"]'"
+    defaultValue: '["BTC/USD"]'
     required: true
   - name: LIVE_OR_HISTORICAL
     inputType: FreeText
