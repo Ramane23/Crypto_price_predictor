@@ -6,6 +6,11 @@ variables:
     description: kafka topic from which we will read the ohlc candles
     defaultValue: ohlc_live
     required: true
+  - name: KAFKA_CONSUMER_GROUP
+    inputType: FreeText
+    description: the consumer group to read the ohlc candles from the ohlc kafka topic
+    defaultValue: ohlc_live_consumer_group
+    required: true
 dockerfile: Dockerfile
 runEntryPoint: src/main.py
 defaultFile: src/main.py
