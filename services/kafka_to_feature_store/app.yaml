@@ -21,6 +21,11 @@ variables:
     description: This is the version of the hopsworks feature group we are using
     defaultValue: 1
     required: true
+  - name: BUFFER_SIZE
+    inputType: FreeText
+    description: This is the number of ohlc candles we will push to the feature store at once
+    defaultValue: 1
+    required: true
 dockerfile: Dockerfile
 runEntryPoint: src/main.py
 defaultFile: src/main.py
