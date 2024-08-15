@@ -24,7 +24,7 @@ deployments:
         inputType: FreeText
         description: This is the list of cryptos we want to fetch data for
         required: true
-        value: "'[\"BTC/USD\"]'"
+        value: '["BTC/USD"]'
       - name: LIVE_OR_HISTORICAL
         inputType: FreeText
         description: This is to indicate that we want to fetch live / real-time trades data
