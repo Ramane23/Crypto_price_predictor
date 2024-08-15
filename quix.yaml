@@ -98,6 +98,16 @@ deployments:
         description: we are running on live mode
         required: true
         value: live
+      - name: HOPSWORKS_API_KEY
+        inputType: Secret
+        description: ''
+        required: true
+        secretKey: HOPSWORKS_API_KEY
+      - name: HOPSWORKS_PROJECT_NAME
+        inputType: Secret
+        description: ''
+        required: true
+        secretKey: HOPSWORKS_PROJECT_NAME
 
 # This section describes the Topics of the data pipeline
 topics:
