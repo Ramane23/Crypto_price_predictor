@@ -11,6 +11,11 @@ variables:
     description: the consumer group to read the ohlc candles from the ohlc kafka topic
     defaultValue: ohlc_live_consumer_group
     required: true
+  - name: FEATURE_GROUP_NAME
+    inputType: FreeText
+    description: This is the name of the feature group from the hopsworks feature store
+    defaultValue: ohlc_feature_group
+    required: true
 dockerfile: Dockerfile
 runEntryPoint: src/main.py
 defaultFile: src/main.py
