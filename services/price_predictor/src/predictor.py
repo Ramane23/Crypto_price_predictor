@@ -16,9 +16,9 @@ from typing import List
 import pandas as pd
 from loguru import logger
 
-from data_preprocessing import interpolate_missing_candles
-from feature_engineering import add_features
-from utils import get_model_name
+from src.data_preprocessing import interpolate_missing_candles
+from src.feature_engineering import add_features
+from src.utils import get_model_name
 
 import sys
 import os

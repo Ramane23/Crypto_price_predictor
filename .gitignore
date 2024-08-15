@@ -195,3 +195,5 @@ ca.cert
 *.csv
 **/credentials.env
 **/.sh
+.venv/
+certificates/

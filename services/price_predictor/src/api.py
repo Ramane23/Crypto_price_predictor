@@ -1,7 +1,7 @@
 # You can use Flask or FastAPI to create a REST API
 from flask import Flask, request, jsonify
 
-from predictor import Predictor
+from src.predictor import Predictor
 
 # list of crypto currencies we support for prediction
 SUPPORTED_PRODUCT_IDS = ['BTC/USD']

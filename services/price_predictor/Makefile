@@ -24,6 +24,7 @@ build: copy-tools
 
 run: build
 	docker run \
+		--name inference-pipeline \
 		--env-file ../../credentials.env \
 		-p 5005:80 \
 		price-predictor-api
